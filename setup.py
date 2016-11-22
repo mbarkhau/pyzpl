@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 
 import os
 import io
-from setuptools import setup, find_packages
+from setuptools import setup
 
 from pyzpl import __version__
 
@@ -39,6 +39,8 @@ extras_requires = {
         'wheel',
     ],
     'dev': [
+        'flake8',
+        'pytest',
         'ipython',
         'pudb',
     ],
