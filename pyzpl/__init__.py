@@ -50,7 +50,11 @@ import io
 import re
 import sys
 
+import six
+
 __version__ = '0.1.5'
+
+str = unicode if six.PY2 else str
 
 
 NAME_RE = re.compile(r"^(?P<propname>[A-Z0-9\$_\-@\.&+/]+).*$", re.VERBOSE | re.IGNORECASE)
@@ -101,24 +105,41 @@ def load_stream(bytes_stream, encoding='utf-8'):
 
 
 def load(bytes_stream, encoding='utf-8', flat=False, sep=":"):
-    result = {}
+    tree = {}
     for propnames, value in load_stream(bytes_stream, encoding=encoding):
         if flat:
             flatkey = sep.join(propnames)
-            result[flatkey] = value
+            tree[flatkey] = value
         else:
-            ctx = result
+            ctx = tree
             for subkey in propnames[:-1]:
                 if subkey not in ctx:
                     ctx[subkey] = {}
                 ctx = ctx[subkey]
             ctx[propnames[-1]] = value
 
-    return result
+    return tree
 
 
 def loads(data, *args, **kwargs):
     return load(io.BytesIO(data), *args, **kwargs)
+
+
+def dump_lines(tree_items):
+    for name, val in tree_items:
+        if not isinstance(val, str):
+            val = str(val)
+
+        if '#' in val:
+            val_str = '"' + val + '"'
+        else:
+            val_str = val
+        yield name + " = " + val_str
+
+
+def dumps(tree):
+    lines = dump_lines(six.viewitems(tree))
+    return "\n".join(lines) + "\n"
 
 
 def main(args=sys.argv[1:]):

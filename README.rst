@@ -125,9 +125,6 @@ validate that data.
 Backlog
 -------
 
- - Fix setup.py bdist_wheel upload
-    https://packaging.python.org/distributing/#universal-wheels
- - Fix flake8 linting
  - Add travis CI
  - Implement Serialization
  - Implement Cython based Parsing/Serialization

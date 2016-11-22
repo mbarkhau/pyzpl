@@ -58,7 +58,7 @@ apps
 Case = collections.namedtuple("Case", ['call', 'data', 'expected'])
 
 
-PARSE_TEST_CASES = [
+LOAD_TEST_CASES = [
     Case(
         call=pyzpl.loads,
         data=FIXTURE_1,
@@ -143,11 +143,34 @@ PARSE_TEST_CASES = [
             "main:frontend:bind"            : "tcp://eth0:5555",
             "main:backend:bind"             : "tcp://eth0:5556",
         }
-    )
+    ),
+    # TODO (mb 2016-11-22): Test cases for
+    #  - A value that starts with a quote and does not end in a
+    #    matching quote is treated as unquoted.
 ]
 
 
-@pytest.mark.parametrize("call, data, expected", PARSE_TEST_CASES)
-def test_parse(call, data, expected):
+DUMP_TEST_CASES = [
+    Case(
+        call=pyzpl.dumps,
+        data={"hello": "world"},
+        expected="hello = world\n"
+    ),
+    Case(
+        call=pyzpl.dumps,
+        data={"hello": "world with # hash (not a comment)"},
+        expected="""hello = "world with # hash (not a comment)"\n"""
+    ),
+]
+
+
+@pytest.mark.parametrize("call, data, expected", LOAD_TEST_CASES)
+def test_load(call, data, expected):
+    result = call(data)
+    assert result == expected
+
+
+@pytest.mark.parametrize("call, data, expected", DUMP_TEST_CASES)
+def test_dump(call, data, expected):
     result = call(data)
     assert result == expected

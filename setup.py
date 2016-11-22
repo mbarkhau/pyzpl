@@ -30,7 +30,7 @@ tests_require = [
 ]
 
 install_requires = [
-    # 'six',
+    'six',
 ]
 
 extras_requires = {
