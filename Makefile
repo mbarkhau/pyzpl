@@ -10,6 +10,8 @@ install: clean
 	./venv/bin/python setup.py install
 
 dist: install
+	venv/bin/python setup.py build
+	venv/bin/python setup.py bdist_wheel upload
 	venv3/bin/python setup.py build
 	venv3/bin/python setup.py sdist upload
 	venv3/bin/python setup.py bdist_wheel upload
