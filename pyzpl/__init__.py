@@ -39,8 +39,8 @@ Names SHALL match this grammar:
 
 name = *name-char
 name-char = ALPHA | DIGIT | "$" | "-" | "_" | "@" | "." | "&" | "+" | "/"
-
 """
+
 from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
@@ -50,7 +50,7 @@ import io
 import re
 import sys
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 
 
 NAME_RE = re.compile(r"^(?P<propname>[A-Z0-9\$_\-@\.&+/]+).*$", re.VERBOSE | re.IGNORECASE)

@@ -35,6 +35,7 @@ install_requires = [
 
 extras_requires = {
     'build': [
+        'twine',
         'wheel',
     ],
     'dev': [
