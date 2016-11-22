@@ -20,7 +20,6 @@ with io.open(README_PATH, encoding='utf-8') as fh:
 
 
 setup_requires = [
-    # TODO (mb 2016-11-22): implement faster parsing using cython
     # 'cython',
     'flake8',
     'pytest-runner',
@@ -31,7 +30,7 @@ tests_require = [
 ]
 
 install_requires = [
-    'six',
+    # 'six',
 ]
 
 extras_requires = {
@@ -44,6 +43,7 @@ extras_requires = {
     ],
 }
 
+
 setup(
     name='pyzpl',
     version=__version__,
@@ -54,7 +54,7 @@ setup(
     author='Manuel Barkhau',
     author_email='mbarkhau@gmail.com',
     license='MIT',
-    packages=find_packages(),
+    packages=['pyzpl'],
     entry_points="""
         [console_scripts]
         zpl=pyzpl:main

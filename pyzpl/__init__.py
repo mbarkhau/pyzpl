@@ -50,7 +50,7 @@ import io
 import re
 import sys
 
-__version__ = '0.1.0'
+__version__ = '0.1.3'
 
 
 NAME_RE = re.compile(r"^(?P<propname>[A-Z0-9\$_\-@\.&+/]+).*$", re.VERBOSE | re.IGNORECASE)

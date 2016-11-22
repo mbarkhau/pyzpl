@@ -120,3 +120,12 @@ deliberate. ZPL is not meant to be a formal grammar but a
 simple-to-parse framing for name/value pairs. It emulates 0MQ
 insofar as it frames data but does not attempt to inspect or
 validate that data.
+
+
+Backlog
+-------
+
+ - Fix flake8 linting
+ - Add travis CI
+ - Implement Serialization
+ - Implement Cython based Parsing/Serialization
