@@ -1,0 +1,14 @@
+venv
+venv3
+privkey
+*.pyc
+/.project
+build/
+*.swp
+env/
+scriptings/
+*.egg-info
+*.egg
+.eggs/
+.cache
+*.log
