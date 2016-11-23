@@ -29,9 +29,7 @@ tests_require = [
     'pytest',
 ]
 
-install_requires = [
-    'six',
-]
+install_requires = []
 
 extras_requires = {
     'build': [

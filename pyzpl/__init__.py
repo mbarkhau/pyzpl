@@ -57,15 +57,19 @@ import io
 import re
 import sys
 import collections
-
-import six
+import operator as op
 
 __version__ = '0.1.6'
 
-str = unicode if six.PY2 else str   # noqa
+PY2 = sys.version_info.major < 3
+
+str = unicode if PY2 else str   # noqa
+
+vitems = op.methodcaller('viewitems') if PY2 else op.methodcaller('items')
 
 
 NAME_RE = re.compile(r"^(?P<propname>[A-Z0-9\$_\-@\.&+/]+).*$", re.VERBOSE | re.IGNORECASE)
+
 
 NAME_VALUE_PAIR_RE = re.compile(r"""
     ^
@@ -112,7 +116,13 @@ def load_stream(bytes_stream, encoding='utf-8'):
                 prev_indent_lvl = indent_lvl
 
 
-def load(bytes_stream, encoding='utf-8', flat=False, name_sep=":", dict_cls=collections.OrderedDict):
+def load(
+        bytes_stream,
+        encoding='utf-8',
+        flat=False,
+        name_sep=":",
+        dict_cls=collections.OrderedDict):
+
     tree = dict_cls()
     for propnames, value in load_stream(bytes_stream, encoding=encoding):
         if flat:
@@ -149,7 +159,7 @@ def dump_lines(tree_items, name_sep=":"):
 
         if isinstance(val, dict):
             yield name
-            sub_items = six.viewitems(val)
+            sub_items = vitems(val)
             for subline in dump_lines(sub_items):
                 yield "    " + subline
             continue
@@ -166,7 +176,7 @@ def dump_lines(tree_items, name_sep=":"):
 
 
 def dumps(tree, *args, **kwargs):
-    lines = dump_lines(six.viewitems(tree), *args, **kwargs)
+    lines = dump_lines(vitems(tree), *args, **kwargs)
     return "\n".join(lines) + "\n"
 
 
