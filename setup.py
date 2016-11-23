@@ -50,7 +50,7 @@ setup(
     version=__version__,
     description=README.splitlines()[0],
     long_description=README,
-    keywords="cli zpl zmq serialization",
+    keywords=["zpl", "zmq", "serialization"],
     url='https://github.com/mbarkhau/pyzpl/',
     author='Manuel Barkhau',
     author_email='mbarkhau@gmail.com',
