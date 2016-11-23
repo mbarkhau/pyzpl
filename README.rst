@@ -5,6 +5,8 @@ The ZeroMQ Property Language (ZPL) defines a minimalistic
 framing language for specifying property sets, expressed as a
 hierarchy of name-value property pairs.
 
+See the original specification here: `https://rfc.zeromq.org/spec:4/ZPL/ <https://rfc.zeromq.org/spec:4/ZPL/>`_
+
 Goals
 -----
 
