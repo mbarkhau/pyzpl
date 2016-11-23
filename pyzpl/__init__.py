@@ -59,7 +59,7 @@ import sys
 import collections
 import operator as op
 
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 
 PY2 = sys.version_info.major < 3
 

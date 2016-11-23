@@ -4,6 +4,7 @@ privkey
 *.pyc
 /.project
 build/
+dist/
 *.swp
 env/
 scriptings/
