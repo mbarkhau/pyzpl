@@ -128,3 +128,9 @@ Backlog
  - Implement Serialization of Streams
  - Add travis CI
  - Implement Cython based Parsing/Serialization
+
+
+Changelog
+---------
+
+  todo (add based on git commit message parsing)
