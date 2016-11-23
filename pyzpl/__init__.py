@@ -39,6 +39,13 @@ Names SHALL match this grammar:
 
 name = *name-char
 name-char = ALPHA | DIGIT | "$" | "-" | "_" | "@" | "." | "&" | "+" | "/"
+
+The following sequences are treated as line-endings:
+
+    newline (%x0A)
+    carriage-return (%x0D)
+    carriage-return followed by newline (%x0A %x0D)
+
 """
 
 from __future__ import division
@@ -49,12 +56,13 @@ from __future__ import unicode_literals
 import io
 import re
 import sys
+import collections
 
 import six
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
-str = unicode if six.PY2 else str
+str = unicode if six.PY2 else str   # noqa
 
 
 NAME_RE = re.compile(r"^(?P<propname>[A-Z0-9\$_\-@\.&+/]+).*$", re.VERBOSE | re.IGNORECASE)
@@ -104,17 +112,17 @@ def load_stream(bytes_stream, encoding='utf-8'):
                 prev_indent_lvl = indent_lvl
 
 
-def load(bytes_stream, encoding='utf-8', flat=False, sep=":"):
-    tree = {}
+def load(bytes_stream, encoding='utf-8', flat=False, name_sep=":", dict_cls=collections.OrderedDict):
+    tree = dict_cls()
     for propnames, value in load_stream(bytes_stream, encoding=encoding):
         if flat:
-            flatkey = sep.join(propnames)
+            flatkey = name_sep.join(propnames)
             tree[flatkey] = value
         else:
             ctx = tree
             for subkey in propnames[:-1]:
                 if subkey not in ctx:
-                    ctx[subkey] = {}
+                    ctx[subkey] = dict_cls()
                 ctx = ctx[subkey]
             ctx[propnames[-1]] = value
 
@@ -125,8 +133,27 @@ def loads(data, *args, **kwargs):
     return load(io.BytesIO(data), *args, **kwargs)
 
 
-def dump_lines(tree_items):
+def dump_lines(tree_items, name_sep=":"):
     for name, val in tree_items:
+        if isinstance(name, str) and name_sep in name:
+            name = name.split(name_sep)
+        if isinstance(name, (tuple, list)):
+            # TODO (mb 2016-11-23): handle indent
+            indent = ""
+            for parent_name in name[:-1]:
+                yield indent + parent_name
+                indent += "    "
+            name = name[-1]
+        else:
+            indent = ""
+
+        if isinstance(val, dict):
+            yield name
+            sub_items = six.viewitems(val)
+            for subline in dump_lines(sub_items):
+                yield "    " + subline
+            continue
+
         if not isinstance(val, str):
             val = str(val)
 
@@ -134,11 +161,12 @@ def dump_lines(tree_items):
             val_str = '"' + val + '"'
         else:
             val_str = val
-        yield name + " = " + val_str
+
+        yield indent + name + " = " + val_str
 
 
-def dumps(tree):
-    lines = dump_lines(six.viewitems(tree))
+def dumps(tree, *args, **kwargs):
+    lines = dump_lines(six.viewitems(tree), *args, **kwargs)
     return "\n".join(lines) + "\n"
 
 
