@@ -128,6 +128,7 @@ Backlog
 -------
 
 - Implement Serialization of Streams
+- Readthedocs Documentation
 - Add travis CI
 - Implement Cython based Parsing/Serialization
 

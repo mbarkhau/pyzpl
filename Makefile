@@ -27,7 +27,21 @@ minor: 							## increment minor version
 patch: 							## increment patch version
 	@python3 update_version.py --patch pyzpl/__init__.py
 
-build: clean install			## build source and wheel distributions
+lint:							## run linters
+	@venv3/bin/flake8 .
+	@venv/bin/flake8 .
+
+test: 							## run tests
+	@venv3/bin/pytest tests.py
+	@venv/bin/pytest tests.py
+
+clean_docs:
+	@rm -rf docs/_build/
+
+docs: clean_docs
+	cd docs && $(MAKE) html
+
+build: clean install lint test	## build source and wheel distributions
 	venv/bin/python setup.py build
 	venv/bin/python setup.py bdist_wheel
 	venv3/bin/python setup.py build
@@ -36,11 +50,3 @@ build: clean install			## build source and wheel distributions
 
 dist: clean install build		## upload distributions to pypi
 	venv3/bin/twine upload dist/*
-
-lint:							## run linters
-	@venv3/bin/flake8 .
-	@venv/bin/flake8 .
-
-test: 							## run tests
-	@venv3/bin/pytest tests.py
-	@venv/bin/pytest tests.py
