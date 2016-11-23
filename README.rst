@@ -125,6 +125,6 @@ validate that data.
 Backlog
 -------
 
+ - Implement Serialization of Streams
  - Add travis CI
- - Implement Serialization
  - Implement Cython based Parsing/Serialization
