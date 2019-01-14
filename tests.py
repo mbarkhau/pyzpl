@@ -140,11 +140,99 @@ NESTED_1_TREE_FLAT = {
     "root:branch:leafname": "leafval"
 }
 
+FIXTURE_3_DATA = b"""
+thing = foo
+    bar = baz
+
+thing = flu
+    bar = bat
+
+thing
+    bar = bar
+
+depth
+    item
+        value = 1
+""".lstrip()
+
+FIXTURE_3_OUT = b"""
+thing = foo
+    bar = baz
+thing = flu
+    bar = bat
+thing
+    bar = bar
+depth
+    item
+        value = 1
+""".strip()
+
+
+def cfgtester(data, *args, **kw):
+    """test the Config file parser and interface
+    """
+    cfg = pyzpl.load_cfg(io.BytesIO(data), *args, **kw)
+    assert cfg != None
+
+    thing = cfg.get("thing")              # get first 'thing' node
+    assert thing.value == "foo"
+
+    # sub-element navigation
+    bar1 = cfg.get( ("thing","bar") )
+    bar2 = thing.get("bar")
+    bar3 = cfg.get("thing:bar")
+    assert bar1.value == "baz"
+    assert bar1 == bar2 == bar3
+
+    value = cfg.get("depth:item:value")
+    assert value.value == "1"             # all values are strings
+
+    # filtering
+    thing = cfg.get("thing", "flu")
+    assert thing.value == "flu"
+
+    bar1 = cfg.get( ("thing", "bar"), filter="bar" )   # get the bar of the any 'thing' node where the value is "bar"
+    assert bar1.value == "bar"
+
+    bar1 = cfg.get( ("thing", "bar"), filter=("flu", None) )   # get the 'bar' of the 'thing=flu' node
+    assert bar1.value == "bat"
+
+    # iteration
+    children = [ child for child in cfg.children ]
+
+    assert len(children) == 4
+    node = children[0]
+    assert node.name == "thing"
+    assert node.value == "foo"
+
+    node = children[1]
+    assert node.name == "thing"
+    assert node.value == "flu"                # order is preserved
+
+    node = children[2]
+    assert node.name == "thing"
+    assert node.value == ""                   # this node has no value
+
+    node = children[3]
+    assert node.name == "depth"
+    assert node.value == ""
+
+    # return is a dump of the tree (root node). It should match the
+    # input, less blank lines and comments
+    return str(cfg).strip().encode()
 
 Case = collections.namedtuple("Case", ['name', 'call', 'data', 'expected'])
 
+UNUSED_TEST_CASES = [
+]
 
 LOAD_TEST_CASES = [
+    Case(
+        name="load_cfg",
+        call=cfgtester,
+        data=FIXTURE_3_DATA,
+        expected=FIXTURE_3_OUT,
+        ),
     Case(
         name="loads spec doc",
         call=pyzpl.loads,
