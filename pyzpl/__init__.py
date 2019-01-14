@@ -348,7 +348,6 @@ def load_cfg(bytes_stream, encoding='utf-8'):
     print("Entering load_cfg")
     root = ZPLnode()
     roots = [root,]
-    prev = root
     for propnames, value in load_stream(bytes_stream, encoding=encoding, emit_empty=True):
         # call load_stream with emit_empty=True to make it return all nodes. This simplifies
         # creating sub-trees, and ensures that the maximum increate in depth is 1
@@ -361,7 +360,6 @@ def load_cfg(bytes_stream, encoding='utf-8'):
         name = propnames[-1]
         child = ZPLnode( name=name, value=value, parent=parent )
         roots.append(child)
-        prev = child
 
     return root
 
