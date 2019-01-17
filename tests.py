@@ -188,13 +188,13 @@ def cfgtester(data, *args, **kw):
     assert value.value == "1"             # all values are strings
 
     # filtering
-    thing = cfg.get("thing", "flu")
+    thing = cfg.get("thing", query="flu")
     assert thing.value == "flu"
 
-    bar1 = cfg.get( ("thing", "bar"), filter="bar" )   # get the bar of the any 'thing' node where the value is "bar"
+    bar1 = cfg.get( ("thing", "bar"), query="bar" )   # get the bar of the any 'thing' node where the value is "bar"
     assert bar1.value == "bar"
 
-    bar1 = cfg.get( ("thing", "bar"), filter=("flu", None) )   # get the 'bar' of the 'thing=flu' node
+    bar1 = cfg.get( ("thing", "bar"), query=("flu", None) )   # get the 'bar' of the 'thing=flu' node
     assert bar1.value == "bat"
 
     # iteration

@@ -231,17 +231,17 @@ class ZPLnode(object):
             self._level = 0
         self._children = []
 
-    def get(self, path, filter=(None,), name_sep=':'):
-        """get(path, filter=None, name_sep=':')
+    def get(self, path, query=(None,), name_sep=':'):
+        """get(path, query=None, name_sep=':')
 
-        Retrieve the node described by 'path' and (optionally) matching 'filter'
+        Retrieve the node described by 'path' and (optionally) matching 'query'
 
         path is a tuple of names, or a string of 'name_sep' delimited parts, corresponding to
         the hierarchy of nodes
 
-        filter is an optional value to compare the value of matching nodes against. It is
+        query is an optional value to compare the value of matching nodes against. It is
         either a single string, in which case only the last node is filtered, or it is a tuple
-        of values corresponding to the last len(filter) parts. It may not be a 'name_sep'
+        of values corresponding to the last len(query) parts. It may not be a 'name_sep'
         delimited string, because values are arbitrary values
 
         Examples:
@@ -267,26 +267,26 @@ class ZPLnode(object):
             thing = cfg.get("thing", "flu")
             assert thing.value == "flu"
 
-            bar = cfg.get( ("thing", "bar"), filter="bar" )   # get the bar of the any 'thing' node where the value is "bar"
+            bar = cfg.get( ("thing", "bar"), query="bar" )   # get the bar of the any 'thing' node where the value is "bar"
             assert bar.value == "bar"
 
-            bar = cfg.get( ("thing", "bar"), filter=("flu", None) )   # get the 'bar' of the 'thing=flu' node
+            bar = cfg.get( ("thing", "bar"), query=("flu", None) )   # get the 'bar' of the 'thing=flu' node
             assert bar.value == "bat"
         """
 
         # if this is a string, turn it into a list
         if (hasattr(path, 'encode')): path = path.split(name_sep)
 
-        # check the filter; if it is a string, turn it into a list. If it is short, pad it with 'None'
-        if (hasattr(filter, 'encode')): filter = (filter,)
+        # check the query; if it is a string, turn it into a list. If it is short, pad it with 'None'
+        if (hasattr(query, 'encode')): query = (query,)
 
-        if (len(filter) > len(path)) : raise ValueError("too many filter parameters for path", "path="+str(path), "filter="+str(filter))
+        if (len(query) > len(path)) : raise ValueError("too many query parameters for path", "path="+str(path), "query="+str(query))
 
-        # left-pad the filter with None
-        filter = (None,)*(len(path)-len(filter)) + filter
+        # left-pad the query with None
+        query = (None,)*(len(path)-len(query)) + query
 
-        # Turn the parts and filters into a list that can be sliced
-        args = [ x for x in zip(path, filter) ]
+        # Turn the parts and querys into a list that can be sliced
+        args = [ x for x in zip(path, query) ]
         match, node = self.__match(args)
 
         result = node if match else None
