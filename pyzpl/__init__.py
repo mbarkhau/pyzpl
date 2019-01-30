@@ -292,6 +292,27 @@ class ZPLnode(object):
         result = node if match else None
         return result
 
+    def __getitem__(self, child):
+        """The children of this node may be accessed like a dict. If there are multiple
+        children with the same name, the first one will be returned:
+            first = node["child"]
+
+        If the children have values, they may be selected:
+            sam = node["child=Sam"]
+
+        If no child matching the name[=value] selector exists, KeyError is raised
+        """
+        idx = child.find('=')
+        if idx > 0:
+            key = child[:idx]
+            val = (child[idx+1:],)
+        else:
+            key = child
+            val = (None,)
+        node = self.get(key, query=val)
+        if not node: raise KeyError(child)
+        return node
+
     def __match(self, args):
         node = None
         part, filt = args[0]
@@ -345,7 +366,6 @@ def load_cfg(bytes_stream, encoding='utf-8'):
     instances, returning the root node.
     """
 
-    print("Entering load_cfg")
     root = ZPLnode()
     roots = [root,]
     for propnames, value in load_stream(bytes_stream, encoding=encoding, emit_empty=True):

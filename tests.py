@@ -140,99 +140,12 @@ NESTED_1_TREE_FLAT = {
     "root:branch:leafname": "leafval"
 }
 
-FIXTURE_3_DATA = b"""
-thing = foo
-    bar = baz
-
-thing = flu
-    bar = bat
-
-thing
-    bar = bar
-
-depth
-    item
-        value = 1
-""".lstrip()
-
-FIXTURE_3_OUT = b"""
-thing = foo
-    bar = baz
-thing = flu
-    bar = bat
-thing
-    bar = bar
-depth
-    item
-        value = 1
-""".strip()
-
-
-def cfgtester(data, *args, **kw):
-    """test the Config file parser and interface
-    """
-    cfg = pyzpl.load_cfg(io.BytesIO(data), *args, **kw)
-    assert cfg != None
-
-    thing = cfg.get("thing")              # get first 'thing' node
-    assert thing.value == "foo"
-
-    # sub-element navigation
-    bar1 = cfg.get( ("thing","bar") )
-    bar2 = thing.get("bar")
-    bar3 = cfg.get("thing:bar")
-    assert bar1.value == "baz"
-    assert bar1 == bar2 == bar3
-
-    value = cfg.get("depth:item:value")
-    assert value.value == "1"             # all values are strings
-
-    # filtering
-    thing = cfg.get("thing", query="flu")
-    assert thing.value == "flu"
-
-    bar1 = cfg.get( ("thing", "bar"), query="bar" )   # get the bar of the any 'thing' node where the value is "bar"
-    assert bar1.value == "bar"
-
-    bar1 = cfg.get( ("thing", "bar"), query=("flu", None) )   # get the 'bar' of the 'thing=flu' node
-    assert bar1.value == "bat"
-
-    # iteration
-    children = [ child for child in cfg.children ]
-
-    assert len(children) == 4
-    node = children[0]
-    assert node.name == "thing"
-    assert node.value == "foo"
-
-    node = children[1]
-    assert node.name == "thing"
-    assert node.value == "flu"                # order is preserved
-
-    node = children[2]
-    assert node.name == "thing"
-    assert node.value == ""                   # this node has no value
-
-    node = children[3]
-    assert node.name == "depth"
-    assert node.value == ""
-
-    # return is a dump of the tree (root node). It should match the
-    # input, less blank lines and comments
-    return str(cfg).strip().encode()
-
 Case = collections.namedtuple("Case", ['name', 'call', 'data', 'expected'])
 
 UNUSED_TEST_CASES = [
 ]
 
 LOAD_TEST_CASES = [
-    Case(
-        name="load_cfg",
-        call=cfgtester,
-        data=FIXTURE_3_DATA,
-        expected=FIXTURE_3_OUT,
-        ),
     Case(
         name="loads spec doc",
         call=pyzpl.loads,
@@ -319,3 +232,152 @@ def test_full_cycle():
 
     assert FIXTURE_2_DATA == data1
     assert FIXTURE_2_DATA == data2
+
+
+
+FIXTURE_3_DATA = b"""
+# Basement printer
+node = basement
+    ip = 10.1.2.3
+    port = 2001
+    device = Canon Pixma
+
+# Front door security camera
+node = front door
+    ip = 10.1.2.10
+    port = 8080
+    device = Wyze Cam Pan 1080p
+
+# Nursery bio-monitor
+node = nursery
+    ip = 10.1.2.42
+    port = 8888
+    device = Mimo Sleep Tracker
+
+# Our users
+authorized_users
+    authorization = simple
+
+    user = alex
+        privilege = super-user
+
+    user = thomas
+        privilege = user
+
+    user = mark
+        privilege = user
+""".lstrip()
+
+FIXTURE_3_OUT = b"""
+node = basement
+    ip = 10.1.2.3
+    port = 2001
+    device = Canon Pixma
+node = front door
+    ip = 10.1.2.10
+    port = 8080
+    device = Wyze Cam Pan 1080p
+node = nursery
+    ip = 10.1.2.42
+    port = 8888
+    device = Mimo Sleep Tracker
+authorized_users
+    authorization = simple
+    user = alex
+        privilege = super-user
+    user = thomas
+        privilege = user
+    user = mark
+        privilege = user
+""".strip()
+
+
+def test_hiearchical():
+    """test the Config file parser and interface
+    """
+    cfg = pyzpl.load_cfg(io.BytesIO(FIXTURE_3_DATA))
+    assert cfg != None
+
+    # "subscript" access
+    node = cfg["node"]                    # get the first node
+    assert node != None
+    assert node.value == "basement"
+
+    node = cfg["node=front door"]         # query selection
+    assert node != None
+    assert node.value == "front door"
+
+    # Negative test
+    with pytest.raises(KeyError) as excinfo:
+        node = cfg["door"]
+    assert "door" in str(excinfo.value)
+
+    with pytest.raises(KeyError) as excinfo:
+        node = cfg["node=garage"]
+    assert "node=garage" in str(excinfo.value)
+
+
+    # get() access
+    node = cfg.get("node")                # get the first node (unqualified)
+    assert node.value == "basement"
+
+    # sub-element navigation
+    ip1 = node.get("ip")                  # relative to the sub-tree retrieved above
+    ip2 = cfg.get( ("node","ip") )        # still the first node, hierarchicaly qualified
+    ip3 = cfg.get("node:ip")              # string based fully qualified
+    assert ip1.value == "10.1.2.3"
+    assert ip1 == ip2 == ip3
+
+    auth = cfg.get("authorized_users:authorization")
+    assert auth != None
+    assert auth.value == "simple"
+
+    # chained "indexing"
+    auth = cfg["authorized_users"]["authorization"]
+    assert auth != None
+    assert auth.value == "simple"
+
+    # filtering
+    node = cfg.get("node", query="nursery")
+    assert node.value == "nursery"
+
+    # When the query is the leaf node, a simple query may be used
+    user = cfg.get( ("authorized_users", "user"), query="mark" )
+    assert user != None
+    assert user.value == "mark"
+
+    # This test demonstrates how filters can be applied at any level. The query is extended to
+    # include implicit 'None' values on the left, as needed to balance the depth of the path. So
+    #   --- path ---            --- query ---
+    #   ('a', 'b', 'c')         ('1', None)
+    # is equivalent to
+    #   cfg.get('a', query=None).get('b', query='1').get('c', query=None)
+
+    priv = cfg.get( ("authorized_users", "user", "privilege"), query=("alex", None) )
+    assert priv != None
+    assert priv.value == "super-user"
+
+    # iteration
+    children = [ child for child in cfg.children ]
+
+    assert len(children) == 4
+    node = children[0]
+    assert node.name == "node"
+    assert node.value == "basement"
+
+    node = children[1]
+    assert node.name == "node"
+    assert node.value == "front door"                # order is preserved
+
+    node = children[2]
+    assert node.name == "node"
+    assert node.value == "nursery"
+
+    node = children[3]
+    assert node.name == "authorized_users"
+    assert node.value == ""                         # this node has no value
+
+    # return is a dump of the tree (root node). It should match the
+    # input, less blank lines and comments
+    assert str(cfg).strip().encode() == FIXTURE_3_OUT
+
