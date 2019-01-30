@@ -300,11 +300,9 @@ def test_hiearchical():
 
     # "subscript" access
     node = cfg["node"]                    # get the first node
-    assert node != None
     assert node.value == "basement"
 
     node = cfg["node=front door"]         # query selection
-    assert node != None
     assert node.value == "front door"
 
     # Negative test
@@ -319,14 +317,16 @@ def test_hiearchical():
 
     # get() access
     node = cfg.get("node")                # get the first node (unqualified)
+    assert node != None
     assert node.value == "basement"
 
     # sub-element navigation
     ip1 = node.get("ip")                  # relative to the sub-tree retrieved above
     ip2 = cfg.get( ("node","ip") )        # still the first node, hierarchicaly qualified
     ip3 = cfg.get("node:ip")              # string based fully qualified
-    assert ip1.value == "10.1.2.3"
+    assert ip1 != None
     assert ip1 == ip2 == ip3
+    assert ip1.value == "10.1.2.3"
 
     auth = cfg.get("authorized_users:authorization")
     assert auth != None
@@ -334,11 +334,11 @@ def test_hiearchical():
 
     # chained "indexing"
     auth = cfg["authorized_users"]["authorization"]
-    assert auth != None
     assert auth.value == "simple"
 
     # filtering
     node = cfg.get("node", query="nursery")
+    assert node != None
     assert node.value == "nursery"
 
     # When the query is the leaf node, a simple query may be used
@@ -351,7 +351,9 @@ def test_hiearchical():
     #   --- path ---            --- query ---
     #   ('a', 'b', 'c')         ('1', None)
     # is equivalent to
-    #   cfg.get('a', query=None).get('b', query='1').get('c', query=None)
+    #   ('a', 'b', 'c')         (None, '1', None)
+    # or
+    #   cfg.get('a').get('b', query='1').get('c')
 
     priv = cfg.get( ("authorized_users", "user", "privilege"), query=("alex", None) )
     assert priv != None
@@ -359,8 +361,8 @@ def test_hiearchical():
 
     # iteration
     children = [ child for child in cfg.children ]
-
     assert len(children) == 4
+
     node = children[0]
     assert node.name == "node"
     assert node.value == "basement"
