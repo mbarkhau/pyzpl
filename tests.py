@@ -10,6 +10,7 @@ import functools as ft
 
 import pytest
 import pyzpl
+import pyzpl2
 
 
 FIXTURE_1_DATA = b"""
@@ -295,7 +296,7 @@ authorized_users
 def test_hiearchical():
     """test the Config file parser and interface
     """
-    cfg = pyzpl.load_cfg(io.BytesIO(FIXTURE_3_DATA))
+    cfg = pyzpl2.load_cfg(io.BytesIO(FIXTURE_3_DATA))
     assert cfg != None
 
     # "subscript" access

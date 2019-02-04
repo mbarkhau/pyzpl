@@ -57,7 +57,7 @@ setup(
     author='Manuel Barkhau',
     author_email='mbarkhau@gmail.com',
     license='MIT',
-    packages=['pyzpl'],
+    packages=['pyzpl', 'pyzpl2'],
     entry_points="""
         [console_scripts]
         zpl=pyzpl:main
