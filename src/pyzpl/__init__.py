@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+# This file is part of the pyzpl project
+# https://gitlab.com/mbarkhau/pyzpl
+#
+# Copyright (c) 2019 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# SPDX-License-Identifier: MIT
+
 """ZPL: ZeroMQ Property Language
 
 ZPL is an ASCII text format that uses whitespace - line endings
@@ -53,17 +59,17 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+__version__ = "v201902.0001-beta"
+
 import io
 import re
 import sys
 import collections
 import operator as op
 
-__version__ = '0.1.9'
-
 PY2 = sys.version_info.major < 3
 
-str = unicode if PY2 else str   # noqa
+str = unicode if PY2 else str  # noqa
 
 vitems = op.methodcaller('viewitems') if PY2 else op.methodcaller('items')
 
@@ -71,7 +77,8 @@ vitems = op.methodcaller('viewitems') if PY2 else op.methodcaller('items')
 NAME_RE = re.compile(r"^(?P<propname>[A-Z0-9\$_\-@\.&+/]+).*$", re.VERBOSE | re.IGNORECASE)
 
 
-NAME_VALUE_PAIR_RE = re.compile(r"""
+NAME_VALUE_PAIR_RE = re.compile(
+    r"""
     ^
     (?P<propname>[A-Z0-9\$_\-@\.&+/]+)
     \s*=\s*
@@ -80,16 +87,18 @@ NAME_VALUE_PAIR_RE = re.compile(r"""
     \"?
     (?P<trailing_comment>\s*\#.*?)?
     $
-""", re.VERBOSE | re.IGNORECASE)
+""",
+    re.VERBOSE | re.IGNORECASE,
+)
 
 
 def load_stream(bytes_stream, encoding='utf-8'):
-    propname_stack = tuple()
+    propname_stack  = tuple()
     prev_indent_lvl = 0
     for lineno, raw_line in enumerate(bytes_stream):
         decoded_line = raw_line.decode(encoding)
         cleaned_line = decoded_line.rstrip("\r\n")
-        line = cleaned_line.lstrip(" ")
+        line         = cleaned_line.lstrip(" ")
         if not line:
             continue
         spaces = len(cleaned_line) - len(line)
@@ -104,9 +113,9 @@ def load_stream(bytes_stream, encoding='utf-8'):
 
         nv_pair_match = NAME_VALUE_PAIR_RE.match(line)
         if nv_pair_match:
-            propname = nv_pair_match.group(1).strip()
-            value = nv_pair_match.group(2)
-            propnames = propname_stack + (propname,)
+            propname        = nv_pair_match.group(1).strip()
+            value           = nv_pair_match.group(2)
+            propnames       = propname_stack + (propname,)
             prev_indent_lvl = indent_lvl
             yield propnames, value
         else:
@@ -117,11 +126,8 @@ def load_stream(bytes_stream, encoding='utf-8'):
 
 
 def load(
-        bytes_stream,
-        encoding='utf-8',
-        flat=False,
-        name_sep=":",
-        dict_cls=collections.OrderedDict):
+    bytes_stream, encoding='utf-8', flat=False, name_sep=":", dict_cls=collections.OrderedDict
+):
 
     tree = dict_cls()
     for propnames, value in load_stream(bytes_stream, encoding=encoding):
@@ -167,7 +173,7 @@ def dump_lines(tree_items, name_sep=":"):
         if not isinstance(val, str):
             val = str(val)
 
-        if '#' in val:
+        if "#" in val:
             val_str = '"' + val + '"'
         else:
             val_str = val

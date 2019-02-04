@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+# This file is part of the pyzpl project
+# https://gitlab.com/mbarkhau/pyzpl
+#
+# Copyright (c) 2019 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# SPDX-License-Identifier: MIT
 """ZPL: ZeroMQ Property Language
 
 ZPL is an ASCII text format that uses whitespace - line endings
@@ -59,7 +64,7 @@ import sys
 import collections
 import operator
 
-__version__ = "0.1.9"
+__version__ = "v201902.0001-beta"
 
 PY2 = sys.version_info.major < 3
 
