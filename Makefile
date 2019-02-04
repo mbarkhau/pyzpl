@@ -35,12 +35,6 @@ test: 							## run tests
 	@venv3/bin/pytest tests.py
 	@venv/bin/pytest tests.py
 
-clean_docs:
-	@rm -rf docs/_build/
-
-docs: clean_docs
-	cd docs && $(MAKE) html
-
 build: clean install lint test	## build source and wheel distributions
 	venv/bin/python setup.py build
 	venv/bin/python setup.py bdist_wheel

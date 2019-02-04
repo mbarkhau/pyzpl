@@ -35,8 +35,6 @@ extras_requires = {
     'build': [
         'twine',
         'wheel',
-        'sphinx',
-        'sphinx-autobuild',
     ],
     'dev': [
         'flake8',
