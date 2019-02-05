@@ -292,21 +292,26 @@ git_hooks:
 ## Run flake8 linter
 .PHONY: lint
 lint:
+ifdef _DISABLED
 	@printf "flake8 ..\n"
 	@$(DEV_ENV)/bin/flake8 src/
 	@printf "\e[1F\e[9C ok\n"
+endif
+	@echo "lint...noop"
 
 
 ## Run mypy type checker
 .PHONY: mypy
 mypy:
 	@rm -rf ".mypy_cache";
-
+ifdef _DISABLED
 	@printf "mypy ....\n"
 	@MYPYPATH=stubs/:vendor/ $(DEV_ENV_PY) -m mypy \
 		--html-report mypycov \
 		src/ | sed "/Generated HTML report/d"
 	@printf "\e[1F\e[9C ok\n"
+endif
+	@echo "mypy...noop"
 
 
 ## Run pylint. Should not break the build yet
