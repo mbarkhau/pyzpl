@@ -22,9 +22,9 @@ pages:
   stage: build
   script:
     - mkdir -p public/cov
-    - mkdir -p public/mypycov
+    # - mkdir -p public/mypycov
     - cp -r htmlcov/* public/cov/
-    - cp -r mypycov/* public/mypycov/
+    # - cp -r mypycov/* public/mypycov/
   artifacts:
     paths:
       - public
