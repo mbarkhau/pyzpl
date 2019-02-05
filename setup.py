@@ -34,7 +34,7 @@ setuptools.setup(
     author="Manuel Barkhau",
     author_email="mbarkhau@gmail.com",
     url="https://gitlab.com/mbarkhau/pyzpl",
-    version="201902.1b0",
+    version="201902.2b0",
     keywords="zpl zmq serialization",
     description="ZeroMQ Property Language Parser/Serializer",
     long_description=long_description,

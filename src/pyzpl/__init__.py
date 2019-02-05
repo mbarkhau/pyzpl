@@ -59,7 +59,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-__version__ = "v201902.0001-beta"
+__version__ = "v201902.0002-beta"
 
 import io
 import re
